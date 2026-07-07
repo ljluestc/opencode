@@ -538,6 +538,10 @@ export function NewHome() {
     })
   }
 
+  function openProjectFolder(_conn: ServerConnection.Any, project: LocalProject) {
+    void platform.openPath?.(project.worktree)
+  }
+
   return (
     <div class="rounded-[10px] shadow-[var(--v2-elevation-raised)] m-2 min-h-0 lg:overflow-hidden bg-v2-background-bg-base self-stretch flex-1">
       <div class="mx-auto grid h-full w-full max-w-[1080px] grid-rows-[auto_minmax(0,1fr)_auto] gap-4 px-3 lg:grid-cols-[280px_minmax(0,720px)] lg:grid-rows-1 lg:gap-8 lg:px-6">
@@ -563,6 +567,7 @@ export function NewHome() {
           }}
           clearNotifications={clearNotifications}
           unseenCount={unseenCount}
+          openProjectFolder={platform.openPath ? openProjectFolder : undefined}
           openSettings={openSettings}
           openHelp={() => platform.openLink("https://opencode.ai/desktop-feedback")}
           language={language}
@@ -678,6 +683,7 @@ function HomeProjectColumn(props: {
   closeProject: (server: ServerConnection.Any, directory: string) => void
   clearNotifications: (server: ServerConnection.Any, project: LocalProject) => void
   unseenCount: (server: ServerConnection.Any, project: LocalProject) => number
+  openProjectFolder?: (server: ServerConnection.Any, project: LocalProject) => void
   openSettings: () => void
   openHelp: () => void
   language: ReturnType<typeof useLanguage>
@@ -917,6 +923,7 @@ function HomeProjectList(props: {
   closeProject: (server: ServerConnection.Any, directory: string) => void
   clearNotifications: (server: ServerConnection.Any, project: LocalProject) => void
   unseenCount: (server: ServerConnection.Any, project: LocalProject) => number
+  openProjectFolder?: (server: ServerConnection.Any, project: LocalProject) => void
   language: ReturnType<typeof useLanguage>
 }) {
   return (
@@ -936,6 +943,7 @@ function HomeProjectList(props: {
             editProject={props.editProject}
             closeProject={props.closeProject}
             clearNotifications={props.clearNotifications}
+            openProjectFolder={props.openProjectFolder}
             language={props.language}
           />
         )}
@@ -1027,10 +1035,20 @@ function HomeProjectRow(props: {
   editProject: (server: ServerConnection.Any, project: LocalProject) => void
   closeProject: (server: ServerConnection.Any, directory: string) => void
   clearNotifications: (server: ServerConnection.Any, project: LocalProject) => void
+  openProjectFolder?: (server: ServerConnection.Any, project: LocalProject) => void
   language: ReturnType<typeof useLanguage>
 }) {
   const global = useGlobal()
+  const platform = usePlatform()
   const serverUnreachable = () => global.servers.health[ServerConnection.key(props.server)]?.healthy === false
+  const canOpenFolder = () => !!props.openProjectFolder && ServerConnection.local(props.server)
+  const folderLabel = () => {
+    if (platform.platform === "desktop") {
+      if (platform.os === "macos") return props.language.t("session.header.open.finder")
+      if (platform.os === "windows") return props.language.t("session.header.open.fileExplorer")
+    }
+    return props.language.t("session.header.open.fileManager")
+  }
   const [state, setState] = createStore({ menuOpen: false })
   return (
     <div class="group/project relative flex h-7 min-w-0 items-center rounded-[6px]">
@@ -1073,6 +1091,11 @@ function HomeProjectRow(props: {
               <MenuV2.Item onSelect={() => props.editProject(props.server, props.project)}>
                 {props.language.t("dialog.project.edit.title")}
               </MenuV2.Item>
+              <Show when={canOpenFolder()}>
+                <MenuV2.Item onSelect={() => props.openProjectFolder!(props.server, props.project)}>
+                  {props.language.t("session.header.openIn") + " " + folderLabel()}
+                </MenuV2.Item>
+              </Show>
               <MenuV2.Item
                 disabled={props.unseenCount === 0}
                 onSelect={() => props.clearNotifications(props.server, props.project)}
