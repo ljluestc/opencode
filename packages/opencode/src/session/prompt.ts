@@ -1371,7 +1371,7 @@ const layer = Layer.effect(
 
       const raw = input.arguments.match(argsRegex) ?? []
       const args = raw.map((arg) => arg.replace(quoteTrimRegex, ""))
-      const templateCommand = yield* Effect.promise(async () => cmd.template)
+      const templateCommand = yield* commands.template(cmd)
 
       const placeholders = templateCommand.match(placeholderRegex) ?? []
       let last = 0

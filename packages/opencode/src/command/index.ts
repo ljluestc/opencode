@@ -5,6 +5,7 @@ import { EffectBridge } from "@/effect/bridge"
 import type { InstanceContext } from "@/project/instance-context"
 import { Effect, Layer, Context, Schema } from "effect"
 import { Config } from "@/config/config"
+import { ConfigCommand } from "@/config/command"
 import { MCP } from "../mcp"
 import { Skill } from "../skill"
 import PROMPT_INITIALIZE from "./template/initialize.txt"
@@ -51,6 +52,7 @@ export const Default = {
 export interface Interface {
   readonly get: (name: string) => Effect.Effect<Info | undefined>
   readonly list: () => Effect.Effect<Info[]>
+  readonly template: (command: Info) => Effect.Effect<string>
 }
 
 export class Service extends Context.Service<Service, Interface>()("@opencode/Command") {}
@@ -168,7 +170,24 @@ const layer = Layer.effect(
       return Object.values(s.commands)
     })
 
-    return Service.of({ get, list })
+    // Command markdown is read once, when the instance's config is built, and that config is
+    // never rebuilt. Resolving a markdown-backed command from the cached state would keep
+    // serving the body captured at startup, so re-read the file when the command actually runs.
+    const template = Effect.fn("Command.template")(function* (command: Info) {
+      const markdown = command.source === "command" ? yield* markdownTemplate(command.name) : undefined
+      return markdown ?? (yield* Effect.promise(async () => command.template))
+    })
+
+    // Later config directories win, matching how Config merges markdown commands.
+    const markdownTemplate = Effect.fn("Command.markdownTemplate")(function* (name: string) {
+      for (const dir of [...(yield* config.directories())].reverse()) {
+        const loaded = yield* Effect.promise(() => ConfigCommand.load(dir).catch(() => undefined))
+        const found = loaded?.[name]
+        if (found) return found.template
+      }
+    })
+
+    return Service.of({ get, list, template })
   }),
 )
 
