@@ -140,3 +140,18 @@ export const effectiveWorkspaceOrder = (local: string, dirs: string[], persisted
 
   return [...result, ...live.values()]
 }
+
+// A nested subdirectory of a repo resolves to the same project as the repo root, but it is
+// not interchangeable with it the way a linked worktree is. Only the worktree itself and the
+// project's sandboxes may be collapsed onto the worktree: collapsing a nested directory moves
+// the route, and every session started from it, up to the repo root.
+export function projectRootForDirectory<T extends { worktree: string; sandboxes?: readonly string[] }>(
+  directory: string,
+  project: T | undefined,
+) {
+  if (!project) return undefined
+  const key = pathKey(directory)
+  if (pathKey(project.worktree) === key) return project.worktree
+  if (project.sandboxes?.some((sandbox) => pathKey(sandbox) === key)) return project.worktree
+  return undefined
+}

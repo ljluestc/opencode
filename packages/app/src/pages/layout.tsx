@@ -65,6 +65,7 @@ import {
   effectiveWorkspaceOrder,
   errorMessage,
   latestRootSession,
+  projectRootForDirectory,
   sortedRootSessions,
 } from "./layout/helpers"
 import {
@@ -1127,7 +1128,7 @@ export default function LegacyLayout(props: ParentProps) {
     if (!id) return directory
 
     const meta = serverSync().data.project.find((item) => item.id === id)
-    return meta?.worktree ?? directory
+    return projectRootForDirectory(directory, meta) ?? directory
   }
 
   function activeProjectRoot(directory: string) {
@@ -1932,6 +1933,14 @@ export default function LegacyLayout(props: ParentProps) {
     })
     const projectId = createMemo(() => project()?.id ?? "")
     const worktree = createMemo(() => project()?.worktree ?? "")
+    // A session must start in the directory the route is in. A nested subdirectory of a repo
+    // shares the project's worktree, so falling back to it would root the session — and the
+    // skill, agent and instruction discovery scoped to it — at the repo root instead.
+    const newSessionDirectory = createMemo(() => {
+      const dir = currentDir()
+      if (dir && project() === currentProject()) return dir
+      return worktree()
+    })
     const slug = createMemo(() => {
       const dir = worktree()
       if (!dir) return ""
@@ -2106,7 +2115,7 @@ export default function LegacyLayout(props: ParentProps) {
                           size="large"
                           class="w-full"
                           onClick={() => {
-                            const dir = worktree()
+                            const dir = newSessionDirectory()
                             if (!dir) return
                             navigateWithSidebarReset(`/${base64Encode(dir)}/session`)
                           }}

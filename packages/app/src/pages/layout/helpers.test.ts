@@ -19,6 +19,7 @@ import {
   homeProjectDirectories,
   homeSessionServerStatus,
   latestRootSession,
+  projectRootForDirectory,
   sortedRootSessions,
   toggleHomeProjectSelection,
 } from "./helpers"
@@ -343,5 +344,15 @@ describe("layout workspace helpers", () => {
     expect(errorMessage({ data: { message: "boom" } }, "fallback")).toBe("boom")
     expect(errorMessage(new Error("broken"), "fallback")).toBe("broken")
     expect(errorMessage("unknown", "fallback")).toBe("fallback")
+  })
+
+  test("keeps a nested project directory out of the repo root", () => {
+    const project = { worktree: "/home/me/Documents", sandboxes: ["/home/me/worktrees/feature"] }
+
+    expect(projectRootForDirectory("/home/me/Documents", project)).toBe("/home/me/Documents")
+    expect(projectRootForDirectory("/home/me/Documents/", project)).toBe("/home/me/Documents")
+    expect(projectRootForDirectory("/home/me/worktrees/feature", project)).toBe("/home/me/Documents")
+    expect(projectRootForDirectory("/home/me/Documents/knowledgebase", project)).toBeUndefined()
+    expect(projectRootForDirectory("/home/me/Documents", undefined)).toBeUndefined()
   })
 })
