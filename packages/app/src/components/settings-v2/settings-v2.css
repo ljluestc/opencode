@@ -18,17 +18,18 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow-y: auto;
-  scrollbar-width: none;
+  overflow: hidden;
   user-select: none;
+}
+
+/* The ScrollView owns scrolling so panels get a visible thumb and a focusable, keyboard-scrollable viewport */
+.settings-v2-panel-scroll {
+  flex: 1;
+  height: 100%;
 }
 
 .settings-v2-panel :is(input, textarea, [contenteditable="true"]) {
   user-select: text;
-}
-
-.settings-v2-panel::-webkit-scrollbar {
-  display: none;
 }
 
 .settings-v2-tab-header {

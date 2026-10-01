@@ -2,6 +2,7 @@ import { Component, createMemo, createSignal, startTransition } from "solid-js"
 import { Dialog } from "@opencode-ai/ui/v2/dialog-v2"
 import { TabsV2 } from "@opencode-ai/ui/v2/tabs-v2"
 import { Icon } from "@opencode-ai/ui/icon"
+import { ScrollView } from "@opencode-ai/ui/scroll-view"
 import { useLanguage } from "@/context/language"
 import { usePlatform } from "@/context/platform"
 import { SettingsGeneralV2 } from "./general"
@@ -94,19 +95,29 @@ export const DialogSettings: Component<{
           </div>
         </TabsV2.List>
         <TabsV2.Content value="general" class="settings-v2-panel">
-          <SettingsGeneralV2 sessionID={props.sessionID} />
+          <ScrollView class="settings-v2-panel-scroll">
+            <SettingsGeneralV2 sessionID={props.sessionID} />
+          </ScrollView>
         </TabsV2.Content>
         <TabsV2.Content value="shortcuts" class="settings-v2-panel">
-          <SettingsKeybinds v2 />
+          <ScrollView class="settings-v2-panel-scroll">
+            <SettingsKeybinds v2 />
+          </ScrollView>
         </TabsV2.Content>
         <TabsV2.Content value="servers" class="settings-v2-panel">
-          <SettingsServersV2 />
+          <ScrollView class="settings-v2-panel-scroll">
+            <SettingsServersV2 />
+          </ScrollView>
         </TabsV2.Content>
         <TabsV2.Content value="providers" class="settings-v2-panel">
-          <SettingsProvidersV2 directory={directory} onBack={showProviders} />
+          <ScrollView class="settings-v2-panel-scroll">
+            <SettingsProvidersV2 directory={directory} onBack={showProviders} />
+          </ScrollView>
         </TabsV2.Content>
         <TabsV2.Content value="models" class="settings-v2-panel">
-          <SettingsModelsV2 />
+          <ScrollView class="settings-v2-panel-scroll">
+            <SettingsModelsV2 />
+          </ScrollView>
         </TabsV2.Content>
       </TabsV2>
     </Dialog>

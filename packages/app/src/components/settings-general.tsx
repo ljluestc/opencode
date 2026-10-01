@@ -1,4 +1,5 @@
 import { Component, Show, createMemo, createResource, onMount, type JSX } from "solid-js"
+import { ScrollView } from "@opencode-ai/ui/scroll-view"
 import { Button } from "@opencode-ai/ui/button"
 import { Icon } from "@opencode-ai/ui/icon"
 import { Select } from "@opencode-ai/ui/select"
@@ -740,39 +741,41 @@ export const SettingsGeneral: Component = () => {
   )
 
   return (
-    <div class="flex flex-col h-full overflow-y-auto no-scrollbar px-4 pb-10 sm:px-10 sm:pb-10">
-      <div class="sticky top-0 z-10 bg-[linear-gradient(to_bottom,var(--surface-stronger-non-alpha)_calc(100%_-_24px),transparent)]">
-        <div class="flex flex-col gap-1 pt-6 pb-8">
-          <h2 class="text-16-medium text-text-strong">{language.t("settings.tab.general")}</h2>
+    <ScrollView class="h-full">
+      <div class="flex flex-col px-4 pb-10 sm:px-10 sm:pb-10">
+        <div class="sticky top-0 z-10 bg-[linear-gradient(to_bottom,var(--surface-stronger-non-alpha)_calc(100%_-_24px),transparent)]">
+          <div class="flex flex-col gap-1 pt-6 pb-8">
+            <h2 class="text-16-medium text-text-strong">{language.t("settings.tab.general")}</h2>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-8 w-full">
+          <Show when={settings.general.layoutTransitionAvailable()}>
+            <InterfaceSection />
+          </Show>
+
+          <Show when={settings.general.newInterfaceNoticeVisible()}>
+            <InterfaceNoticeSection />
+          </Show>
+
+          <GeneralSection />
+
+          <AppearanceSection />
+
+          <NotificationsSection />
+
+          <SoundsSection />
+
+          <UpdatesSection />
+
+          <DisplaySection />
+
+          <Show when={desktop()}>
+            <AdvancedSection />
+          </Show>
         </div>
       </div>
-
-      <div class="flex flex-col gap-8 w-full">
-        <Show when={settings.general.layoutTransitionAvailable()}>
-          <InterfaceSection />
-        </Show>
-
-        <Show when={settings.general.newInterfaceNoticeVisible()}>
-          <InterfaceNoticeSection />
-        </Show>
-
-        <GeneralSection />
-
-        <AppearanceSection />
-
-        <NotificationsSection />
-
-        <SoundsSection />
-
-        <UpdatesSection />
-
-        <DisplaySection />
-
-        <Show when={desktop()}>
-          <AdvancedSection />
-        </Show>
-      </div>
-    </div>
+    </ScrollView>
   )
 }
 

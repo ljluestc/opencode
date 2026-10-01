@@ -1,6 +1,7 @@
 import { Component, For, Show, createMemo, lazy, onCleanup, onMount } from "solid-js"
 import { createStore } from "solid-js/store"
 import { makeEventListener } from "@solid-primitives/event-listener"
+import { ScrollView } from "@opencode-ai/ui/scroll-view"
 import { Button } from "@opencode-ai/ui/button"
 import { Icon } from "@opencode-ai/ui/icon"
 import { IconButton } from "@opencode-ai/ui/icon-button"
@@ -745,37 +746,39 @@ export const SettingsKeybinds: Component<{ v2?: boolean }> = (props) => {
   )
 
   return (
-    <div class="flex flex-col h-full overflow-y-auto no-scrollbar px-4 pb-10 sm:px-10 sm:pb-10">
-      <div class="sticky top-0 z-10 bg-[linear-gradient(to_bottom,var(--surface-stronger-non-alpha)_calc(100%_-_24px),transparent)]">
-        <div class="flex flex-col gap-4 pt-6 pb-6 max-w-[720px]">
-          <div class="flex items-center justify-between gap-4">
-            <h2 class="text-16-medium text-text-strong">{language.t("settings.shortcuts.title")}</h2>
-            <Button size="small" variant="secondary" onClick={resetAll} disabled={!hasOverrides()}>
-              {language.t("settings.shortcuts.reset.button")}
-            </Button>
-          </div>
+    <ScrollView class="h-full">
+      <div class="flex flex-col px-4 pb-10 sm:px-10 sm:pb-10">
+        <div class="sticky top-0 z-10 bg-[linear-gradient(to_bottom,var(--surface-stronger-non-alpha)_calc(100%_-_24px),transparent)]">
+          <div class="flex flex-col gap-4 pt-6 pb-6 max-w-[720px]">
+            <div class="flex items-center justify-between gap-4">
+              <h2 class="text-16-medium text-text-strong">{language.t("settings.shortcuts.title")}</h2>
+              <Button size="small" variant="secondary" onClick={resetAll} disabled={!hasOverrides()}>
+                {language.t("settings.shortcuts.reset.button")}
+              </Button>
+            </div>
 
-          <div class="flex items-center gap-2 px-3 h-9 rounded-lg bg-surface-base">
-            <Icon name="magnifying-glass" class="text-icon-weak-base flex-shrink-0" />
-            <TextField
-              variant="ghost"
-              type="text"
-              value={store.filter}
-              onChange={(v) => setStore("filter", v)}
-              placeholder={language.t("settings.shortcuts.search.placeholder")}
-              spellcheck={false}
-              autocorrect="off"
-              autocomplete="off"
-              autocapitalize="off"
-              class="flex-1"
-            />
-            <Show when={store.filter}>
-              <IconButton icon="circle-x" variant="ghost" onClick={() => setStore("filter", "")} />
-            </Show>
+            <div class="flex items-center gap-2 px-3 h-9 rounded-lg bg-surface-base">
+              <Icon name="magnifying-glass" class="text-icon-weak-base flex-shrink-0" />
+              <TextField
+                variant="ghost"
+                type="text"
+                value={store.filter}
+                onChange={(v) => setStore("filter", v)}
+                placeholder={language.t("settings.shortcuts.search.placeholder")}
+                spellcheck={false}
+                autocorrect="off"
+                autocomplete="off"
+                autocapitalize="off"
+                class="flex-1"
+              />
+              <Show when={store.filter}>
+                <IconButton icon="circle-x" variant="ghost" onClick={() => setStore("filter", "")} />
+              </Show>
+            </div>
           </div>
         </div>
+        {groups}
       </div>
-      {groups}
-    </div>
+    </ScrollView>
   )
 }

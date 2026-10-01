@@ -10,6 +10,7 @@ import { IconButtonV2 } from "@opencode-ai/ui/v2/icon-button-v2"
 import { TextInputV2 } from "@opencode-ai/ui/v2/text-input-v2"
 import { Switch as SwitchV2 } from "@opencode-ai/ui/v2/switch-v2"
 import { ProviderIcon } from "@opencode-ai/ui/provider-icon"
+import { ScrollView } from "@opencode-ai/ui/scroll-view"
 import { useFilteredList } from "@opencode-ai/ui/hooks"
 import { For, Show, type Component } from "solid-js"
 import { useLocal } from "@/context/local"
@@ -194,8 +195,8 @@ export const DialogManageModelsV2: Component = () => {
             </Show>
           </div>
         </div>
-        <div data-slot="manage-models-scroll" class="relative min-h-0 flex-1">
-          <div class="settings-v2-panel settings-v2-models h-full px-4 pt-4 pb-4">
+        <ScrollView data-slot="manage-models-scroll" class="relative min-h-0 flex-1">
+          <div class="flex flex-col select-none settings-v2-models px-4 pt-4 pb-4">
             <Show
               when={!list.grouped.loading}
               fallback={
@@ -258,7 +259,7 @@ export const DialogManageModelsV2: Component = () => {
               </Show>
             </Show>
           </div>
-        </div>
+        </ScrollView>
       </DialogBody>
     </DialogV2>
   )
