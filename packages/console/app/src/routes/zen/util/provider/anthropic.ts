@@ -192,6 +192,7 @@ export function fromAnthropicRequest(body: any): CommonRequest {
 
   const msgs: any[] = []
 
+  if (typeof body.system === "string" && body.system.length > 0) msgs.push({ role: "system", content: body.system })
   const sys = Array.isArray(body.system) ? body.system : undefined
   if (sys && sys.length > 0) {
     for (const s of sys) {

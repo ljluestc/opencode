@@ -28,7 +28,13 @@ import {
   GoUsageLimitError,
   BlackUsageLimitError,
 } from "./error"
-import { buildCostChunk, createStreamPartConverter, createResponseConverter, UsageInfo } from "./provider/provider"
+import {
+  buildCostChunk,
+  createBodyConverter,
+  createStreamPartConverter,
+  createResponseConverter,
+  UsageInfo,
+} from "./provider/provider"
 import { anthropicHelper } from "./provider/anthropic"
 import { googleHelper } from "./provider/google"
 import { openaiHelper } from "./provider/openai"
@@ -212,14 +218,23 @@ export async function handler(
         (providerInfo.model.startsWith("arn:aws:bedrock:") ||
           providerInfo.model.startsWith("global.anthropic.") ||
           providerInfo.model.startsWith("databricks-claude-"))
-      if (providerInfo.format !== opts.format) throw new Error("Zen provider format must match request format")
+      if (providerInfo.format !== opts.format && (opts.format === "google" || providerInfo.format === "google"))
+        throw new Error("Zen provider format must match request format")
       if (specialAnthropic) throw new Error("Anthropic provider body modifiers are incompatible with streaming")
       const prepared = requestBody
 
-      const reqBody = (() => {
+      const reqBody = await (async () => {
         if (opts.format === "google") return body
         if (!prepared) throw new Error("Missing prepared request body")
-        return prepared.stream(providerInfo.model, providerInfo.format === "oa-compat")
+        if (providerInfo.format === opts.format)
+          return prepared.stream(providerInfo.model, providerInfo.format === "oa-compat")
+        // Models served only by a different upstream format (e.g. GLM over oa-compat behind the
+        // Anthropic /messages route) need the whole body buffered and translated before sending.
+        const converted = createBodyConverter(
+          opts.format,
+          providerInfo.format,
+        )(await new Response(prepared.stream(providerInfo.model, false)).json())
+        return JSON.stringify(providerInfo.modifyBody({ ...converted, model: providerInfo.model }))
       })()
       logger.debug("REQUEST URL: " + reqUrl)
       logger.debug("REQUEST: " + (requestBody?.preview ?? "") + "...")
