@@ -130,6 +130,12 @@ with OpenCode Go. Although we do not guarantee that they will continue to work i
 | **jcode**         | Update to **v0.81.6 or later**, which includes the [session-header fix](https://github.com/1jehuang/jcode/issues/1167).                                                                                                                     |
 | **Kilo Code CLI** | Builds containing [PR #13752](https://github.com/Kilo-Org/kilocode/pull/13752) restore OpenCode session headers. This fix covers the CLI, not the VS Code extension. See [issue #13723](https://github.com/Kilo-Org/kilocode/issues/13723). |
 
+:::note
+Clients that only speak the Messages API format can only use the Go models
+served on `/v1/messages`. See [Endpoints](#endpoints) for the list. Other models,
+such as GLM-5.3, fail on that endpoint.
+:::
+
 ### Known Problematic Clients
 
 These clients have missing or incomplete session support in the versions we
@@ -430,6 +436,10 @@ You can also access Go models through the following API endpoints.
 | Hy4 preview                  | hy4-preview                  | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
 | Hy3                          | hy3                          | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
 | Space Bunny Free             | space-bunny-free             | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+
+Each model is only served on the endpoint listed for it, and a request to a
+different endpoint fails. For example, a client that sends every request to
+`/v1/messages` can only use the models listed with that endpoint.
 
 The [model id](/docs/config/#models) in your OpenCode config
 uses the format `opencode-go/<model-id>`. For example, for Kimi K3, you would
