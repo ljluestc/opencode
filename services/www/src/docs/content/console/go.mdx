@@ -100,6 +100,11 @@ with OpenCode Go. Although we do not guarantee that they will continue to work i
 | **jcode**         | Update to **v0.81.6 or later**, which includes the [session-header fix](https://github.com/1jehuang/jcode/issues/1167).                                                                                                                     |
 | **Kilo Code CLI** | Builds containing [PR #13752](https://github.com/Kilo-Org/kilocode/pull/13752) restore OpenCode session headers. This fix covers the CLI, not the VS Code extension. See [issue #13723](https://github.com/Kilo-Org/kilocode/issues/13723). |
 
+<Callout type="note">
+  Clients that only speak the Messages API format can only use the Go models served on `/v1/messages`. See
+  [Endpoints](#endpoints) for the list. Other models, such as GLM-5.3, fail on that endpoint.
+</Callout>
+
 ### Known problematic clients
 
 These clients have missing or incomplete session support in the versions we
@@ -406,6 +411,9 @@ You can also access Go models through the following API endpoints.
 | Cat Jam Free                 | cat-jam-free                 | `https://opencode.ai/inference/go/v1/chat/completions`                  | `@ai-sdk/openai-compatible` |
 
 </div>
+
+Each model is only served on the endpoint listed for it, and a request to a different endpoint fails. For example, a
+client that sends every request to `/v1/messages` can only use the models listed with that endpoint.
 
 These AI SDK packages are for applications calling Go directly. To use Go in OpenCode, connect with `/connect` and set
 the [model](/models) using the format `opencode-go/<model-id>`:
